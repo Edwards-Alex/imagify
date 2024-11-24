@@ -50,20 +50,14 @@ an application  Text to Image Generator full stack tutorial , use React ，js an
 
 
 
-
-
 ### 5. use Google font in our project
 
 - search outfit font in browser
 
 - click button `get font`
-
 - click button `get embed code`
-
 - click `import` option
-
 - copy this import link  and paste it at vscode `index.css`file at the top
-
 - then add the font at all elements
 
 - ```css
@@ -78,8 +72,73 @@ an application  Text to Image Generator full stack tutorial , use React ，js an
   }
   ```
 
-  
 
-  
 
+
+
+### 6. Building the Home page
+
+- create page `Home`,`BuyCredit`and`Result` and mounted them at `App.jsx`
+
+- ```jsx
+  import React from 'react'
+  import Home from './pages/Home'
+  import BuyCredit from './pages/BuyCredit'
+  import Result from './pages/Result'
   
+  const App = () => {
+    return (
+        <div>
+          <Home />
+          <Result />
+          <BuyCredit />
+        </div>
+    )
+  }
+  
+  export default App
+  ```
+
+- set up the `react-router`
+
+- import `{BrowserRouter}`from `react-router-dom`  this have support of bowser router in the complete app component.
+
+- ```jsx
+  import { createRoot } from 'react-dom/client'
+  import { BrowserRouter } from 'react-router-dom'
+  import './index.css'
+  import App from './App.jsx'
+  
+  createRoot(document.getElementById('root')).render(
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>,
+  )
+  ```
+
+- import `{Routes, Route}` from `react-router-dom` import this can declare use this tag(<Routes>,<Route>)
+
+- ```jsx
+  import React from 'react'
+  import Home from './pages/Home'
+  import BuyCredit from './pages/BuyCredit'
+  import Result from './pages/Result'
+  import {Routes, Route} from 'react-router-dom'
+  
+  const App = () => {
+    return (
+      <div>
+        <Routes>
+          <Route path='/' element={<Home />} />
+          <Route path='/result' element={<Result />} />
+          <Route path='/buy' element={<BuyCredit />} />
+        </Routes>
+      </div>
+    )
+  }
+  
+  export default App
+  ```
+
+- 
+
