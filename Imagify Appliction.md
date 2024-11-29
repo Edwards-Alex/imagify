@@ -160,5 +160,153 @@ an application  Text to Image Generator full stack tutorial , use React ，js an
   }
   ```
 
-- 
 
+
+### 7. Design `Navbar.jsx`
+
+```jsx
+import React, { useState } from 'react'
+import { assets } from '../assets/assets.js'
+import { Link, useNavigate } from 'react-router-dom'
+
+const Navbar = () => {
+
+  const [user, setUser] = useState(null);
+
+  const navigate = useNavigate();
+
+  return (
+    <div className='flex items-center justify-between py-4'>
+      <Link to='/'>
+        <img src={assets.logo} alt="logo" className='w-28 sm:w-32 lg:w-40' />
+      </Link>
+      <div>
+        {
+          user ? 
+          <div className='flex items-center gap-2 sm:gap-3'>
+            <button className='flex items-center gap-2 bg-blue-100 px-4 sm:px-6 py-1.5 sm:py-3  rounded-full hover:scale-105 transition-all duration-700'>
+              <img className='w-5' src={assets.credit_star} alt="credit_star" />
+              <p className='text-xs sm:text-sm font-medium text-gray-600'>Credits left : 50</p>
+            </button>
+            <p className='text-gray-600 max-sm:hidden pl-4'>Hi, GreateUser</p>
+            <div className='relative group'>
+              <img className='w-10 drop-shadow' src={assets.profile_icon} alt="profile_icon" />
+              <div className='absolute hidden group-hover:block top-0 right-0 z-10 text-black rounded pt-12'>
+                <ul className='list-none m-0 p-2 bg-white rounded-md border text-sm'>
+                  <li className='py-1 px-2 cursor-pointer pr-10'>Logout</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          :
+          <div className='flex items-center gap-2 sm:gap-5'>
+            <p onClick={()=>navigate('/buy')} className='cursor-pointer'>Pricing</p>
+            <button className='bg-zinc-800 text-white px-7 py-2 sm:px-10 text-sm rounded-full'>Login</button>
+          </div>
+        }
+      </div>
+    </div>
+  )
+}
+
+export default Navbar
+```
+
+- change `const [user, setUser] const navigate`  add it in the context.
+- store our states and functions in one place.
+
+- create `AppContext.jsx` and createContext
+
+- ```jsx
+  import { createContext, useState } from "react";
+  
+  export const AppContext = createContext();
+  
+  const AppContextProvider = (props) => {
+      const [user, setUser] = useState(null);
+  
+      const value = {
+          user, setUser
+      }
+  
+      return (
+          <AppContext.Provider value={value}>
+              {props.children}
+          </AppContext.Provider>
+      )
+  }
+  
+  export default AppContextProvider;
+  ```
+
+- import `AppContextProvider` in`main.jsx` 
+
+- ```jsx
+  import { createRoot } from 'react-dom/client'
+  import { BrowserRouter } from 'react-router-dom'
+  import './index.css'
+  import App from './App.jsx'
+  import AppContextProvider from './context/AppContext.jsx'
+  
+  createRoot(document.getElementById('root')).render(
+    <BrowserRouter>
+      <AppContextProvider>
+        <App />
+      </AppContextProvider>
+    </BrowserRouter>,
+  )
+  ```
+
+- then  you can use all AppContext's variable you defined in `AppContext.jsx`
+
+- ```jsx
+  import React, { useContext } /*, { useState } */ from 'react'
+  import { assets } from '../assets/assets.js'
+  import { Link, useNavigate } from 'react-router-dom'
+  import { AppContext } from '../context/AppContext.jsx';
+  
+  const Navbar = () => {
+    //change use user from AppContext.
+    const { user } = useContext(AppContext);
+    // const [user, setUser] = useState(null);
+  
+    const navigate = useNavigate();
+  
+    return (
+      <div className='flex items-center justify-between py-4'>
+        <Link to='/'>
+          <img src={assets.logo} alt="logo" className='w-28 sm:w-32 lg:w-40' />
+        </Link>
+        <div>
+          {
+            user ?
+              <div className='flex items-center gap-2 sm:gap-3'>
+                <button onClick={()=>navigate('/buy')} className='flex items-center gap-2 bg-blue-100 px-4 sm:px-6 py-1.5 sm:py-3  rounded-full hover:scale-105 transition-all duration-700'>
+                  <img className='w-5' src={assets.credit_star} alt="credit_star" />
+                  <p className='text-xs sm:text-sm font-medium text-gray-600'>Credits left : 50</p>
+                </button>
+                <p className='text-gray-600 max-sm:hidden pl-4'>Hi, GreateUser</p>
+                <div className='relative group'>
+                  <img className='w-10 drop-shadow' src={assets.profile_icon} alt="profile_icon" />
+                  <div className='absolute hidden group-hover:block top-0 right-0 z-10 text-black rounded pt-12'>
+                    <ul className='list-none m-0 p-2 bg-white rounded-md border text-sm'>
+                      <li className='py-1 px-2 cursor-pointer pr-10'>Logout</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              :
+              <div className='flex items-center gap-2 sm:gap-5'>
+                <p onClick={() => navigate('/buy')} className='cursor-pointer'>Pricing</p>
+                <button className='bg-zinc-800 text-white px-7 py-2 sm:px-10 text-sm rounded-full'>Login</button>
+              </div>
+          }
+        </div>
+      </div>
+    )
+  }
+  
+  export default Navbar
+  ```
+
+- Design Home page.
