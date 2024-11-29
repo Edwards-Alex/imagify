@@ -140,5 +140,25 @@ an application  Text to Image Generator full stack tutorial , use React ，js an
   export default App
   ```
 
+- add navigation bar at `App.jsx` in all pages.
+
+- create navigation component in components folder.
+
+- ```jsx
+  const App = () => {
+    return (
+      <div className='px-4 sm:px-10 md:px-14 lg:px-28 min-h-screen bg-gradient-to-b from-teal-50 to-orange-50'>
+        {/* add Navbar at header */}   
+        <Navbar />
+        <Routes>
+          <Route path='/' element={<Home />} />
+          <Route path='/result' element={<Result />} />
+          <Route path='/buy' element={<BuyCredit />} />
+        </Routes>
+      </div>
+    )
+  }
+  ```
+
 - 
 
