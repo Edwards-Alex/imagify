@@ -729,3 +729,178 @@ export default Testmonials
 
 
 ### 16. Create `Login` jsx
+
+- create login page element, and controller element message with `const [state, setState] = useState('login');`, when login show title login , hidden name input , button login and  bottom href 'Don't have an account? sign up',otherwise title show sign up, button show create account and bottom href message 'Already have an account? Login',a part of codes is below
+
+- ```jsx
+  const [state, setState] = useState('login');
+  
+  <h1 className='uppercase font-medium text-center text-2xl text-neutral-700'>
+    	{state}
+  </h1>
+   {state !== 'login' && <div className='border px-5 pl-3 py-2  flex items-center gap-1 rounded-full mt-5'>
+  	<img src={assets.profile_icon} alt="" width={30} />
+  	<input type='text' placeholder='Full Name' required />
+   </div>}
+  
+  {state === 'login' ? <p className='mt-5 text-center'>Don't have an account?
+  <span className='text-blue-600 cursor-pointer' onClick={() => setState('sign up')}> Sign up</span>
+  </p>
+  :
+  <p className='mt-2 text-center'>Already have an account? <span className='text-blue-600 cursor-pointer' onClick={() => setState('login')}> Login</span>
+  </p>}
+  
+  ```
+
+- variable `const { setShowLogin } = useContext(AppContext);` control login page show or hidden and scrolling bar disable or able with useEffect, 
+
+- when module `<Login />` mounted in `App.jsx`scrolling bar disable.
+
+- ```jsx
+  useEffect(() => {
+  
+          const originalOverflow = document.body.style.overflow;
+  
+          document.body.style.overflow = 'hidden';
+  
+          return () => {  
+              document.body.style.overflow = originalOverflow;
+          }
+      }, []);
+  ```
+
+- `App.jsx`  code
+
+- ```jsx
+  const App = () => {
+  
+    const { showLogin } = useContext(AppContext);
+  
+    return (
+      <div className='px-4 sm:px-10 md:px-14 lg:px-28 min-h-screen bg-gradient-to-b from-teal-50 to-orange-50'>
+        <Navbar />
+        {showLogin && <Login />}
+        <Routes>
+          <Route path='/' element={<Home />} />
+          <Route path='/result' element={<Result />} />
+          <Route path='/buy' element={<BuyCredit />} />
+        </Routes>
+        <Footer />
+      </div>
+    )
+  }
+  ```
+
+- `showLogin` store in `AppContext` , because it use everywhere.
+
+-  ```jsx
+   import { createContext, useState } from "react";
+   
+   export const AppContext = createContext();
+   
+   const AppContextProvider = (props) => {
+       const [user, setUser] = useState(null);
+       const [showLogin, setShowLogin] = useState(false);
+       const value = {
+           user, setUser,
+           showLogin, setShowLogin
+       }
+   
+       return (
+           <AppContext.Provider value={value}>
+               {props.children}
+           </AppContext.Provider>
+       )
+   }
+   
+   export default AppContextProvider;
+   ```
+
+- click `login` page cross image,  `<Login/>`will unmounted in `App.jsx`,so add function on cross image,and mounted `<login/>` when click `Login`button in `Navbar.jsx`
+
+- ```jsx
+  const {  setShowLogin } = useContext(AppContext);
+  {/* cross img click Login will unmounted in App.jsx */}
+  <img onClick={()=>setShowLogin(false)} src={assets.cross_icon} alt="" className='absolute top-5 right-5 cursor-pointer' />
+  
+  const { user, setShowLogin } = useContext(AppContext);
+  {/* click will mounted in App.jsx */}
+  <button onClick={() => setShowLogin(true)} className='bg-zinc-800 text-white px-7 py-2 sm:px-10 text-sm rounded-full'>Login</button>
+  ```
+
+- all code for `Login.jsx`
+
+- ```jsx
+  import React, { useContext, useEffect, useState } from 'react'
+  import { assets } from '../assets/assets'
+  import { AppContext } from '../context/AppContext';
+  
+  const Login = () => {
+  
+      const [state, setState] = useState('login');
+      const { setShowLogin } = useContext(AppContext);
+  
+      useEffect(() => {
+  
+          const originalOverflow = document.body.style.overflow;
+  
+          document.body.style.overflow = 'hidden';
+  
+          return () => {  
+              document.body.style.overflow = originalOverflow;
+          }
+      }, []);
+  
+      return (
+          <div className='absolute top-0 left-0 right-0 bottom-0 z-10 backdrop-blur-sm
+      bg-black/30 flex justify-center items-center'>
+  
+              <form className='relative bg-white p-10 rounded-xl text-slate-500'>
+                  <h1
+                      className='uppercase font-medium text-center text-2xl text-neutral-700'>
+                      {state}
+                  </h1>
+                  <p className='text-sm'>Welcome back! Place sign in to continue</p>
+  
+                  {state !== 'login' && <div className='border px-5 pl-3 py-2  flex items-center gap-1 rounded-full mt-5'>
+                      <img src={assets.profile_icon} alt="" width={30} />
+                      <input type='text' placeholder='Full Name' required />
+                  </div>}
+  
+                  <div className='border px-5 py-2  flex items-center gap-2 rounded-full mt-4'>
+                      <img src={assets.email_icon} alt="" />
+                      <input type='email' placeholder='Email id' required />
+                  </div>
+  
+                  <div className='border px-5 py-2  flex items-center gap-2 rounded-full mt-4'>
+                      <img src={assets.lock_icon} alt="" />
+                      <input type='password' placeholder='Password' required />
+                  </div>
+  
+                  <p className='text-sm text-blue-600 my-4 cursor-pointer'>Forgot password?</p>
+  
+                  <button className='bg-blue-600 w-full text-white py-2 rounded-full'>
+                      {state === 'login' ? 'login' : 'create account'}
+                  </button>
+  
+                  {state === 'login' ? <p className='mt-5 text-center'>Don't have an account?
+                      <span className='text-blue-600 cursor-pointer' onClick={() => setState('sign up')}> Sign up</span>
+                  </p>
+                      :
+                      <p className='mt-2 text-center'>Already have an account?
+                          <span className='text-blue-600 cursor-pointer' onClick={() => setState('login')}> Login</span>
+                      </p>}
+  
+                  <img onClick={()=>setShowLogin(false)} src={assets.cross_icon} alt="" className='absolute top-5 right-5 cursor-pointer' />
+              </form>
+  
+          </div>
+      )
+  }
+  
+  export default Login
+  ```
+
+  
+
+  
