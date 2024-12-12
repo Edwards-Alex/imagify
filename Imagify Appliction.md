@@ -588,7 +588,7 @@ export default Testmonials
   
     const [image, setImage] = useState(assets.sample_img_1);
     const [isImageLoaded, setIsImageLoaded] = useState(false);
-  
+    
   {!isImageLoaded &&
           <div className='flex w-full max-w-xl bg-neutral-500 text-white
           text-sm p-0.5 mt-10 rounded-full'>
@@ -901,6 +901,54 @@ export default Testmonials
   export default Login
   ```
 
-  
 
+
+
+### 17. add animation  at Home page with `Framer-motion`
+
+- how to use and install with react  reference this webpage https://motion.dev/
+
+- for example
+
+- ```jsx
+  import { motion } from 'framer-motion'
   
+  <motion.div className='flex flex-col justify-center items-center text-center my-20'
+          initial={{ opacity: 0.2, y: 100 }}
+          transition={{ duration: 1 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{once:true}}
+          >
+  ```
+
+- add click handler function when user not login show login form, else redirect to result page.
+
+- ```jsx
+  import { AppContext } from '../context/AppContext.jsx'
+  import {useNavigate} from 'react-router-dom' 
+  
+  const {user, setShowLogin} = useContext(AppContext);
+      const navigate = useNavigate();
+  
+      const onClickHandler = () => {
+          if(user){
+              navigate('/result');
+          }else{
+              setShowLogin(true);
+          }
+      }
+      
+  <motion.button onClick={onClickHandler} className='sm:text-lg text-white bg-black w-auto mt-8 px-12 py-2.5 flex items-center gap-2 rounded-full'
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale:0.95 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ default: {duration: 0.5}, opacity: { delay:0.8, 
+              duration: 1}}}
+              >Generate Images
+                  <img className='h-6' src={assets.star_group} alt="star_group" />
+              </motion.button>
+  
+  ```
+
+- 

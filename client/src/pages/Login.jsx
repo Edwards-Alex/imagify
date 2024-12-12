@@ -9,17 +9,21 @@ const Login = () => {
 
     useEffect(() => {
 
+        //page can't scrolling while this module mounted in App.jsx
+
         const originalOverflow = document.body.style.overflow;
 
         document.body.style.overflow = 'hidden';
 
+        //page will reset scrolling when this module unmounted
+        
         return () => {  
             document.body.style.overflow = originalOverflow;
         }
     }, []);
 
     return (
-        <div className='absolute top-0 left-0 right-0 bottom-0 z-10 backdrop-blur-sm
+        <div className='fixed  top-0 left-0 right-0 bottom-0 z-10 backdrop-blur-sm
     bg-black/30 flex justify-center items-center'>
 
             <form className='relative bg-white p-10 rounded-xl text-slate-500'>
