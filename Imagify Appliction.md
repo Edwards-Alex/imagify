@@ -904,7 +904,7 @@ export default Testmonials
 
 
 
-### 17. add animation  at Home page with `Framer-motion`
+### 17. add animation  at Home page, Result page and BuyCredit page with `Framer-motion`
 
 - how to use and install with react  reference this webpage https://motion.dev/
 
@@ -951,4 +951,7 @@ export default Testmonials
   
   ```
 
-- 
+
+
+### 18. add animation at result page 
+
