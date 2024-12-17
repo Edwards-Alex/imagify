@@ -1,5 +1,7 @@
 ## Imagify Appliction
 
+## Client part
+
 ### 1. Description
 
 an application  Text to Image Generator full stack tutorial , use React ，js and mongoDB.
@@ -953,5 +955,51 @@ export default Testmonials
 
 
 
-### 18. add animation at result page 
+- fronted is completed.
+
+
+
+
+
+## Backend part
+
+ 
+
+
+
+### 1.  install dependence packages and initialize server
+
+- `npm init `  init node server  and file `package.json`
+
+- configure `package.json` add `'type: module'` file will be ESM (ECMAScriptModules) can use import and export ...
+- `npm i express cors dontenv nodemon form-data jsonwebtoken mongoose axios bcrypt razorpay `
+- `dontenv` use for store password,server port ... messages in backend
+- `nodemon` can refresh server when change backend code file can't restart server
+- `mongoose` help us connect with mongoDB database
+- `axios` use for backend calling interface
+- `bcrypt `  encrypted password 
+- `razorpay` use for payment  `cors` help for Cross-domain problem
+- `express`  Express is a widely used Node.js web framework that simplifies the process of building web servers and APIs.
+
+
+
+### 2. Configure server.js
+
+```js
+import express from 'express';
+import cors from 'cors';
+import 'dotenv/config';
+
+const PORT = process.env.PORT || 4000;
+const app = express();
+
+app.use(express.json());
+app.use(cors());
+
+app.get('/', ( req, res ) => res.send('API Working!') )
+
+app.listen(PORT,()=>console.log('server running on ' + PORT))
+```
+
+
 
