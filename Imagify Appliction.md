@@ -1003,3 +1003,302 @@ app.listen(PORT,()=>console.log('server running on ' + PORT))
 
 
 
+### 3. Connect database (mongonDB for this project)
+
+- create folder `config` and file `mongodb.js` store connect database config
+
+- first import  package `mongoose` for connect ,then use 
+
+- ```js
+  // show message when connect successfully.
+  mongoose.connection.on('connected', ()=>{
+          console.log("Database Connected.")
+      })
+  ```
+
+- use mongoose.connect() to connect database ,content is database connect url include database username, password and so on . mongoDB_URL store in .env file. `dontenv`installed before for more security.
+
+- ```js
+  await mongoose.connect(`${process.env.MONGODB_URL}/imagfy`)
+  }
+  ```
+
+- complete codes below.
+
+- ```js
+  import mongoose from "mongoose";
+  
+  const connectDB = async () => {
+  
+      mongoose.connection.on('connected', ()=>{
+          console.log("Database Connected.")
+      })
+  
+      await mongoose.connect(`${process.env.MONGODB_URL}/imagfy`)
+  }
+  
+  export default connectDB
+  ```
+
+- add `connectDB` in server.js after`use(cors())`
+
+- ```js
+  app.use(express.json());
+  app.use(cors());
+  //connect mongodb atlas
+  await connectDB();
+  ```
+
+- then start server console log message 'Database Connected.'
+
+
+
+### 4. Create userModel.js for Store user messages in Database.
+
+- create it and define them  first is import mongoose also.
+
+- ```js
+  import mongoose from "mongoose";
+  
+  const userSchema = new mongoose.Schema({
+      name : {type: String, require: true},
+      email: {type: String, require: true, unique: true},
+      password: { type: String, require: true},
+      creditBalance: { type: Number, default: 5},
+  })
+  
+  //create user if has created use it not create again
+  const userModel = mongoose.models.user || mongoose.model('user', userSchema)
+  
+  export default userModel
+  ```
+
+
+
+### 5. Create userController(write logic for API...) and mounted it in userRouter.js and mounted userRouter.js in server.js.
+
+- create it and write the API function logic
+
+- ```js
+  import userModel from "../models/UserModel.js";
+  import bcrypt from "bcrypt";
+  import jwt from "jsonwebtoken";
+  
+  const registerUser = async (req, res) => {
+    try {
+      const { name, email, password } = req.body;
+  
+      if (!name || !email || !password) {
+        return res.json({ success: false, message: "Missing Details" });
+      }
+  
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+  
+      const userDate = {
+        name,
+        email,
+        password: hashedPassword,
+      };
+  
+      const newUser = new userModel(userDate);
+      const user = await newUser.save();
+  
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+  
+      res.json({ success: true, token, user: { name: user.name } });
+    } catch (error) {
+      console.log(error);
+      res.json({ success: false, message: error.message });
+    }
+  };
+  
+  const loginUser = async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const user = await userModel.findOne({ email });
+      if (!user) {
+        return res.json({ success: false, message: "user does not exist" });
+      }
+  
+      const isMath = await bcrypt.compare(password, user.password);
+      if (isMath) {
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+  
+        res.json({ success: true, token, user: { name: user.name } });
+      } else {
+        res.json({ success: false, message: "Invalid credentials" });
+      }
+    } catch (error) {
+      console.log(error);
+      res.json({ success: false, message: error.message });
+    }
+  };
+  
+  const userCredits = async (req, res) => {
+    try {
+      const { userID } = req.body;
+  
+      const user = await userModel.findById(userID);
+      res.json({
+        success: true,
+        credits: user.creditBalance,
+        user: { name: user.name },
+      });
+    } catch (error) {
+      console.log(error);
+      res.json({ success: false, message: error.message });
+    }
+  };
+  
+  export { registerUser, loginUser, userCredits };
+  ```
+
+- mounted it in userRouter.js (controller route for project)
+
+- ```js
+  import express from 'express'
+  import { registerUser, loginUser, userCredits } from "../controllers/userController.js";
+  import userAuth from '../middlewares/auth.js';
+  
+  const userRouter = express.Router();
+  
+  userRouter.post('/register', registerUser);
+  userRouter.post('/login', loginUser);
+  //millderware userAuth add userID to req.body from req.header.token use jwt.verify(token, process.env.SECRET_JWT)
+  userRouter.post('/credits', userAuth ,userCredits);
+  
+  
+  export default userRouter;
+  
+  // http://localhost:4000/api/user/register 
+  // http://localhost:4000/api/user/login 
+  ```
+
+- create middleware userAuth, use for store userId in `req.body`,complete codes below.
+
+- ```js
+  // find userId using the Json web token
+  
+  import jwt from "jsonwebtoken";
+  
+  //next mean will excuted before the controller function whenever we will hit the API
+  const userAuth = async(req, res, next) => {
+      const {token} = req.headers;
+      if(!token){
+          return res.json({success:false, message:'Not Authorized,Login Again'});
+      }
+      try {
+          const tokenDecode = jwt.verify(token, process.env.JWT_SECRET);
+          if(tokenDecode.id){
+              req.body.userID = tokenDecode.id;
+          }else{
+              return res.json({success:false, message: 'Not Authorized,Login Again'});
+          }
+  
+          next();
+  
+      } catch (error) {
+          console.log(error);
+          res.json({success:false, message:error.message});
+      }
+  }
+  
+  export default userAuth;
+  ```
+
+- mounted userRouter in server.js , import it is must be first.
+
+- ```js
+  app.use('/api/user',userRouter);
+  app.get('/', ( req, res ) => res.send('API Working!') )
+  ```
+
+
+
+### 6. Create API to Generate image
+
+- create `iamgeController.js `  write logic for image generate, use clipdrop API to generate it .
+
+- ```js
+  import userModel from "../models/UserModel.js";
+  import FormData from "form-data";
+  import axios from "axios";
+  
+  const generateImage = async (req, res) => {
+    try {
+      const { userID, prompt } = req.body;
+  
+      const user = await userModel.findById(userID);
+      if (!user || !prompt) {
+        return res.json({ success: false, message: "Missing Details" });
+      }
+  
+      if (user.creditBalance === 0 || userModel.creditBalance < 0) {
+        return res.json({
+          success: false,
+          message: "No Credits Balance",
+          creditBalance: user.creditBalance,
+        });
+      }
+  
+      const formData = new FormData();
+      formData.append("prompt", prompt);
+  
+      const { data } = await axios.post(
+        "https://clipdrop-api.co/text-to-image/v1",
+        formData,
+        {
+          headers: {
+            "x-api-key": process.env.CLIPDROP_API_KEY,
+          },
+          responseType: "arraybuffer",
+        }
+      );
+  
+      const base64Image = Buffer.from(data, "binary").toString("base64");
+      const resultImage = `data.image/png;base64,${base64Image}`;
+  
+      await userModel.findByIdAndUpdate(user._id, {
+        creditBalance: user.creditBalance - 1,
+      });
+  
+      res.json({success:true, message:'image generated', 
+          creditBalance:user.creditBalance-1,
+          resultImage
+      })
+    } catch (error) {
+      console.log(error.message);
+      res.json({ success: false, message: error.message });
+    }
+  };
+  
+  export { generateImage };
+  ```
+
+- add this controller in `imageRoutes.js`
+
+- ```js
+  import express from 'express'
+  import userAuth from '../middlewares/auth.js';
+  import { generateImage } from '../controllers/imageController.js';
+  
+  const imageRouter = express.Router();
+  
+  imageRouter.post('/generate-image',userAuth,generateImage);
+  
+  export default imageRouter;
+  
+  //localhost:4000/api/image/generate-image
+  ```
+
+- add this router in `server.js`
+
+- ```js
+  app.use('/api/image',imageRouter)
+  ```
+
+- test with insomnia , response success:true... and other data. this API completed. 
+
+
+
