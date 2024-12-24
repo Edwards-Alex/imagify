@@ -1302,3 +1302,80 @@ app.listen(PORT,()=>console.log('server running on ' + PORT))
 
 
 
+### 7. Mounted  API Router on client page and update AppContext content
+
+- user login  and store token in local storage, AppContext 
+
+- ```jsx
+  const onSubmitHandler = async (e) => {
+          e.preventDefault();
+          try {
+              if (state === 'login') {
+                  const { data } = await axios.post(backendUrl + '/api/user/login',
+                      { email, password });
+                  if (data.success) {
+                      //store token and user in AppContext
+                      setToken(data.token);
+                      setUser(data.user);
+                      //store token in local storage
+                      localStorage.setItem('token', data.token);
+                      //login success hidden login form
+                      setShowLogin(false);
+                  } else {
+                      toast.error(data.message);
+                  }
+              } else {
+                  const { data } = await axios.post(backendUrl + '/api/user/register',
+                      { name, email, password });
+                  if (data.success) {
+                      //store token and user in AppContext
+                      setToken(data.token);
+                      setUser(data.user);
+                      //store token in local storage
+                      localStorage.setItem('token', data.token);
+                      //login success hidden login form
+                      setShowLogin(false);
+                  } else {
+                      toast.error(data.message);
+                  }
+              }
+          } catch (error) {
+              toast.error(error.message);
+          }
+      }
+  ```
+
+-  user login out remove token at local storage, AppContext,this function create at AppContext,call this function useContext().
+
+- ```jsx
+  const logout = () => {
+          localStorage.removeItem('token');
+          setToken('');
+          setUser(null);
+      }
+  ```
+
+- mounted generate-image API Router at result.jsx page
+
+- ```jsx
+  const { generateImage } = useContext(AppContext);
+  
+    const onSubmitHandler = async (e) => {
+      e.preventDefault();
+      setLoading(true);
+  
+      if(input){
+        const image = await generateImage(input);
+        if(image){
+          setIsImageLoaded(true);
+          setImage(image);
+        }
+      }
+      setLoading(false);
+    }
+  ```
+
+- 
+
+
+

@@ -7,7 +7,7 @@ const userRouter = express.Router();
 userRouter.post('/register', registerUser);
 userRouter.post('/login', loginUser);
 //millderware userAuth add userID to req.body from req.header.token use jwt.verify(token, process.env.SECRET_JWT)
-userRouter.post('/credits', userAuth ,userCredits);
+userRouter.get('/credits', userAuth ,userCredits);
 
 
 export default userRouter;
